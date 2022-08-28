@@ -60,14 +60,19 @@ int insert(struct Node *head, int value) {
 }
 
 int display(struct Node *head, bool isPrevThreaded) {
-	if(!head) return 1;
-	printf("$");
-	if(!isPrevThreaded) {
-		display(head->left, head->isThreaded);
+	int i = 20;
+	while(head && i) {
+		while(head->left) {
+			head = head->left;
+		}
+		printf("%d -> ", head->val);
+		while(head->isThreaded) {
+			head = head->right;
+			printf("%d -> ", head->val);
+		}
+		head = head->right;
+		--i;
 	}
-	printf(" %d ", head->val);
-	display(head->right, head->isThreaded);
-	printf(" %d#> ", head->val);
 	return 1;
 }
 
@@ -96,23 +101,31 @@ int bstdelete(struct Node *root, int data) {
 			root = root->left;
 		}
 		
-		prev2->left = root->right;
+		prev2->left = root->isThreaded ? NULL : root->right;
 		target->val = root->val;
 		
+		root = NULL;
 		free(root);
 		
 	} else if(root->right) {
-		root->val = root->right->val;
-		struct Node *temp = root->right;
-		root->right = temp->right;
-		free(temp);
+		if(prev->val < root->val)
+			prev->right = root->right;
+		else {
+			prev->left = root->right;
+			root->right->left = root->left;
+		}
+
+		root = NULL;
+		free(root);
 		
 	} else if(root->left){
-		root->val = root->left->val;
-		struct Node *temp = root->left;
-		root->left = temp->left;
-		root->right = temp->right;
-		free(temp);
+		if(prev->val < root->val)
+			prev->right = root->left;
+		else
+			prev->left = root->left;
+		
+		root = NULL;
+		free(root);
 	}
 	
 }
